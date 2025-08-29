@@ -4,7 +4,7 @@ services:
     build:
       context: .
     volumes:
-      - ./priority:/usr/app/priority
+      - .:/usr/app/
     ports:
       - "8000:8000"
     env_file:
@@ -13,7 +13,7 @@ services:
   postgres:
     image: "postgres:17.6-bookworm"
     environment:
-      - POSTGRES_USER="${POSTGRES_USER}"
-      - POSTGRES_PASSWORD="${POSTGRES_USER}"
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"

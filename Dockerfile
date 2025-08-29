@@ -3,7 +3,10 @@ WORKDIR /app
 
 RUN pip install poetry
 
-ENV FLASK_APP=src.priority
+ENV FLASK_APP=src.priority.py
+
+ENV PYTHONPATH "${PYTHONPATH}:/usr/app/src"
+
 WORKDIR /usr/app
 
 COPY pyproject.toml poetry.lock ./
@@ -14,4 +17,4 @@ RUN poetry config virtualenvs.create false \
 COPY ./src ./src
 
 EXPOSE 8000
-CMD ["poetry", "run", "gunicorn", "--reload", "--bind", "0.0.0.0:8000", "src.priority:app"]
+CMD ["poetry", "run", "gunicorn", "--reload", "--bind", "0.0.0.0:8000", "src.priority:create_app()"]
