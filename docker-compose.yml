@@ -1,0 +1,19 @@
+
+services:
+  web:
+    build:
+      context: .
+    volumes:
+      - ./priority:/usr/app/priority
+    ports:
+      - "8000:8000"
+    env_file:
+      - ".env"
+
+  postgres:
+    image: "postgres:17.6-bookworm"
+    environment:
+      - POSTGRES_USER="${POSTGRES_USER}"
+      - POSTGRES_PASSWORD="${POSTGRES_USER}"
+    ports:
+      - "5432:5432"

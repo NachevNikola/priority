@@ -1,0 +1,23 @@
+[project]
+name = "priority"
+version = "0.1.0"
+description = "A task prioritization API with customizable rules"
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+license = {text = "n"}
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "flask (>=3.1.2,<4.0.0)",
+    "flask-db (>=0.4.1,<0.5.0)",
+    "flask-sqlalchemy (>=3.1.1,<4.0.0)",
+    "gunicorn (>=23.0.0,<24.0.0)",
+    "sqlalchemy (>=2.0.43,<3.0.0)",
+    "python-dotenv (>=1.1.1,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
