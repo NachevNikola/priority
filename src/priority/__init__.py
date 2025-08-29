@@ -1,10 +1,10 @@
-from dotenv import load_dotenv
 from flask import Flask
 from .auth import auth
 from .tasks import tasks
+from .errors import errors
+from .me import me
 from src.priority.extensions import migrate, db
-
-load_dotenv()
+from flask_jwt_extended import JWTManager
 
 def create_app():
     app = Flask(__name__)
@@ -13,9 +13,12 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app, db)
+    JWTManager(app)
 
     app.register_blueprint(auth)
     app.register_blueprint(tasks)
+    app.register_blueprint(errors)
+    app.register_blueprint(me)
 
     return app
 
