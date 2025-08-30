@@ -1,17 +1,17 @@
-from flask import Blueprint, request, jsonify
+from flask import request, jsonify
 import sqlalchemy as sa
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from pydantic import ValidationError, TypeAdapter
+from pydantic import ValidationError
 
-from .models import Rule, Condition, User
-from .extensions import db
-from .errors import bad_request
-from .schemas import RuleCreateModel, RuleUpdateModel, RuleResponse, RulesListResponse
+from src.priority.models import Rule, Condition, User
+from src.priority.extensions import db
+from src.priority.errors import bad_request
+from src.priority.schemas import RuleCreateInput, RuleUpdateInput, RuleResponse, RulesListResponse
 
-rules = Blueprint('rules', __name__, url_prefix='/api/rules')
+from . import api
 
 
-@rules.route('', methods=['GET'])
+@api.route('/rules/', methods=['GET'])
 @jwt_required()
 def get_rules():
     user_id = get_jwt_identity()
@@ -21,14 +21,14 @@ def get_rules():
 
     return jsonify(response_model.model_dump()), 200
 
-@rules.route('', methods=['POST'])
+@api.route('/rules/', methods=['POST'])
 @jwt_required()
 def create_rule():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     json_data = request.get_json()
 
     try:
-        rule_data = RuleCreateModel.model_validate(json_data)
+        rule_data = RuleCreateInput.model_validate(json_data)
     except ValidationError as e:
         return bad_request(e.errors())
 
@@ -53,7 +53,7 @@ def create_rule():
     response_model = RuleResponse.model_validate(rule)
     return jsonify(response_model.model_dump()), 201
 
-@rules.route('/<int:rule_id>', methods=['GET'])
+@api.route('/rules/<int:rule_id>', methods=['GET'])
 @jwt_required()
 def get_rule(rule_id):
     user_id = int(get_jwt_identity())
@@ -69,14 +69,14 @@ def get_rule(rule_id):
 
     return jsonify(response_model.model_dump()), 200
 
-@rules.route('/<int:rule_id>', methods=['PUT', 'PATCH'])
+@api.route('/rules/<int:rule_id>', methods=['PUT', 'PATCH'])
 @jwt_required()
 def update(rule_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     json_data = request.get_json()
 
     try:
-        rule_data = RuleUpdateModel.model_validate(json_data)
+        rule_data = RuleUpdateInput.model_validate(json_data)
     except ValidationError as e:
         return bad_request(e.errors())
 
@@ -108,10 +108,10 @@ def update(rule_id):
     response_model = RuleResponse.model_validate(rule)
     return jsonify(response_model.model_dump()), 201
 
-@rules.route('/<int:rule_id>', methods=['DELETE'])
+@api.route('/rules/<int:rule_id>', methods=['DELETE'])
 @jwt_required()
 def delete_rule(rule_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
 
     rule = db.session.scalar(
         sa.Select(Rule).where(Rule.id == rule_id, Rule.user_id == user_id)

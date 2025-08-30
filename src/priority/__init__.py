@@ -1,10 +1,9 @@
 from flask import Flask
+from .extensions import migrate, db
+from .api import api
 from .auth import auth
-from .rules import rules
-from .tasks import tasks
 from .errors import errors
-from .me import me
-from src.priority.extensions import migrate, db
+from .extensions import migrate, db
 from flask_jwt_extended import JWTManager
 
 def create_app():
@@ -17,10 +16,8 @@ def create_app():
     JWTManager(app)
 
     app.register_blueprint(auth)
-    app.register_blueprint(tasks)
+    app.register_blueprint(api)
     app.register_blueprint(errors)
-    app.register_blueprint(me)
-    app.register_blueprint(rules)
 
     return app
 

@@ -1,20 +1,18 @@
-from src.priority.models import User
-from flask import Blueprint, request
-from .extensions import db
+from flask import request
 import sqlalchemy as sa
-from .errors import bad_request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from src.priority.extensions import db
+from src.priority.models import User
+from src.priority.errors import bad_request
+from . import api
 
-me = Blueprint('me', __name__, url_prefix='/api/me')
-
-
-@me.route('', methods=['GET'])
+@api.route('/me', methods=['GET'])
 @jwt_required()
 def get_user():
     user_id = get_jwt_identity()
     return db.get_or_404(User, user_id).to_dict()
 
-@me.route('', methods=['PUT'])
+@api.route('/me', methods=['PUT'])
 @jwt_required()
 def update_user():
     user_id = get_jwt_identity()

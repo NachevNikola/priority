@@ -1,14 +1,11 @@
-from datetime import timedelta, datetime, timezone
-
-from flask import Blueprint, request, jsonify, current_app
-from .extensions import db
-from .errors import bad_request
-from .models import User
+from datetime import datetime, timezone
+from flask import request, jsonify, current_app
+from src.priority.extensions import db
+from src.priority.errors import bad_request
+from src.priority.models import User
 import sqlalchemy as sa
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
-
-auth = Blueprint("auth", __name__, url_prefix="/api/auth")
-
+from . import auth
 
 @auth.route('/register', methods=['POST'])
 def register():
