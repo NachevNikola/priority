@@ -1,10 +1,9 @@
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Optional, List
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from src.priority.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
 
 task_tags = sa.Table(
     'task_tags',
@@ -15,16 +14,16 @@ task_tags = sa.Table(
               primary_key=True)
 )
 
-class User(UserMixin, db.Model):
+class User(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True)
     email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
 
-    tasks: so.WriteOnlyMapped['Task'] = so.relationship(back_populates='user')
-    categories: so.WriteOnlyMapped['Category'] = so.relationship(back_populates='user')
-    tags: so.WriteOnlyMapped['Tag'] = so.relationship(back_populates='user')
-    rules: so.WriteOnlyMapped['Rule'] = so.relationship(back_populates='user')
+    tasks: so.Mapped[List['Task']] = so.relationship(back_populates='user', cascade='all, delete-orphan')
+    categories: so.Mapped[List['Category']] = so.relationship(back_populates='user', cascade='all, delete-orphan')
+    tags: so.Mapped[List['Tag']] = so.relationship(back_populates='user', cascade='all, delete-orphan')
+    rules: so.Mapped[List['Rule']] = so.relationship(back_populates='user', cascade='all, delete-orphan')
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -64,7 +63,7 @@ class Task(db.Model):
     category_id: so.Mapped[Optional[int]] = so.mapped_column(sa.ForeignKey('category.id'))
     category: so.Mapped[Optional['Category']] = so.relationship(back_populates='tasks')
 
-    tags: so.WriteOnlyMapped['Tag'] = so.relationship(secondary=task_tags, back_populates='tasks')
+    tags: so.Mapped[List['Tag']] = so.relationship(secondary=task_tags, back_populates='tasks')
 
     def __repr__(self):
         return f'<Task {self.title}>'
@@ -77,7 +76,7 @@ class Category(db.Model):
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id), index=True)
     user: so.Mapped[User] = so.relationship(back_populates='categories')
 
-    tasks: so.WriteOnlyMapped[Task] = so.relationship(back_populates='category')
+    tasks: so.Mapped[List[Task]] = so.relationship(back_populates='category')
 
     def __repr__(self):
         return f'<Category {self.name}>'
@@ -89,7 +88,7 @@ class Tag(db.Model):
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id), index=True)
     user: so.Mapped[User] = so.relationship(back_populates='tags')
 
-    tasks: so.WriteOnlyMapped['Task'] = so.relationship(secondary=task_tags, back_populates='tags')
+    tasks: so.Mapped[List['Task']] = so.relationship(secondary=task_tags, back_populates='tags')
 
     def __repr__(self):
         return f'<Tag {self.name}>'
@@ -102,7 +101,7 @@ class Rule(db.Model):
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id), index=True)
     user: so.Mapped[User] = so.relationship(back_populates='rules')
 
-    conditions: so.WriteOnlyMapped['Condition'] = so.relationship(back_populates='rule')
+    conditions: so.Mapped[List['Condition']] = so.relationship(back_populates='rule', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Rule {self.name}>'

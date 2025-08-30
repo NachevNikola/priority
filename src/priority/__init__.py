@@ -1,5 +1,6 @@
 from flask import Flask
 from .auth import auth
+from .rules import rules
 from .tasks import tasks
 from .errors import errors
 from .me import me
@@ -19,6 +20,7 @@ def create_app():
     app.register_blueprint(tasks)
     app.register_blueprint(errors)
     app.register_blueprint(me)
+    app.register_blueprint(rules)
 
     return app
 
