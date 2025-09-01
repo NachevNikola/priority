@@ -5,13 +5,15 @@ from src.priority import db
 from src.priority.errors import bad_request
 from src.priority.models import Task, Category, Tag, User
 from src.priority.schemas import TaskCreateInput, TaskUpdateInput, TaskResponse, TasksListResponse
-
+from src.priority.services.priority_service import PriorityCalculator, ConditionEvaluator
 import sqlalchemy as sa
 
 from pydantic import ValidationError
 
 from . import api
 
+def calculate_priority_score(task: Task) -> int:
+    return PriorityCalculator(ConditionEvaluator()).calculate_task_score(task)
 
 @api.route('/tasks/', methods=['GET'])
 @jwt_required()
@@ -47,6 +49,7 @@ def create_task():
         task.category = get_or_create_user_category(user_id, task_data.category)
 
     task.tags = get_or_create_user_tags(user_id, task_data.tags)
+    task.score = calculate_priority_score(task)
 
     db.session.add(task)
     db.session.commit()
@@ -66,7 +69,7 @@ def get_task(task_id):
 
     if task is None:
         return bad_request('this task does not exist')
-
+    task.score = calculate_priority_score(task)
     response_model = TaskResponse.model_validate(task)
 
     return jsonify(response_model.model_dump(mode='json')), 200
@@ -105,9 +108,7 @@ def update_task(task_id):
         else:
             setattr(task, key, value)
 
-    # user_rules = db.session.scalars(sa.select(Rule).where(Rule.user_id == user_id)).all()
-    # task_to_update.priority_score = calculate_total_priority(task_to_update, user_rules)
-
+    task.priority_score = calculate_priority_score(task)
     db.session.add(task)
     db.session.commit()
     response_model = TaskResponse.model_validate(task)

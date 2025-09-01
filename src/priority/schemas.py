@@ -1,9 +1,11 @@
 from datetime import timedelta, datetime
 from typing import List, Literal, Optional
-from pydantic import BaseModel, Field, ConfigDict, field_serializer, computed_field
+from pydantic import BaseModel, Field, ConfigDict, field_serializer, computed_field, model_validator
+from src.priority.utils import parse_timedelta
 
-ALLOWED_FIELDS = Literal["category", "tags", "deadline"]
+ALLOWED_FIELDS = Literal["category", "tag", "duration", "deadline"]
 ALLOWED_OPERATORS = Literal["equals", "greater_than", "less_than"]
+FIELDS_REQUIRING_TIMEDELTA_VALUE = ("duration", "deadline")
 
 
 class ConditionCreateInput(BaseModel):
@@ -11,6 +13,11 @@ class ConditionCreateInput(BaseModel):
     operator: ALLOWED_OPERATORS
     value: str
 
+    @model_validator(mode='after')
+    def validate_value_for_field(self):
+        if self.field in FIELDS_REQUIRING_TIMEDELTA_VALUE:
+            parse_timedelta(self.value)
+        return self
 
 class ConditionResponse(BaseModel):
     id: int
@@ -90,6 +97,7 @@ class TaskUpdateInput(BaseModel):
 
 class TaskResponse(BaseModel):
     id: int
+    score: int
     title: str
     completed: bool
     duration: Optional[int] = None

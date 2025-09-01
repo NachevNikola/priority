@@ -55,8 +55,10 @@ class Task(db.Model):
     title: so.Mapped[str] = so.mapped_column(sa.String(140))
     completed: so.Mapped[bool] = so.mapped_column(default=False)
     duration: so.Mapped[Optional[int]] = so.mapped_column()
-    deadline: so.Mapped[Optional[datetime]] = so.mapped_column(index=True)
-    created_at: so.Mapped[datetime] = so.mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
+    deadline: so.Mapped[Optional[datetime]] = so.mapped_column(sa.DateTime(timezone=True), index=True)
+    created_at: so.Mapped[datetime] = so.mapped_column(
+        sa.DateTime(timezone=True), index=True, default=lambda: datetime.now(timezone.utc)
+    )
 
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id), index=True)
     user: so.Mapped[User] = so.relationship(back_populates='tasks')
