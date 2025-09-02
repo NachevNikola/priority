@@ -1,57 +1,6 @@
 from datetime import timedelta, datetime
-from typing import List, Literal, Optional
-from pydantic import BaseModel, Field, ConfigDict, field_serializer, computed_field, model_validator
-from src.priority.utils import parse_timedelta
-
-ALLOWED_FIELDS = Literal["category", "tag", "duration", "deadline"]
-ALLOWED_OPERATORS = Literal["equals", "greater_than", "less_than"]
-FIELDS_REQUIRING_TIMEDELTA_VALUE = ("duration", "deadline")
-
-
-class ConditionCreateInput(BaseModel):
-    field: ALLOWED_FIELDS
-    operator: ALLOWED_OPERATORS
-    value: str
-
-    @model_validator(mode='after')
-    def validate_value_for_field(self):
-        if self.field in FIELDS_REQUIRING_TIMEDELTA_VALUE:
-            parse_timedelta(self.value)
-        return self
-
-class ConditionResponse(BaseModel):
-    id: int
-    field: str
-    operator: str
-    value: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class RuleCreateInput(BaseModel):
-    name: str
-    boost: int
-    conditions: List[ConditionCreateInput] = Field(..., min_length=1)
-
-
-class RuleUpdateInput(BaseModel):
-    name: Optional[str] = None
-    boost: Optional[int] = None
-    conditions: Optional[List[ConditionCreateInput]] = Field(None, min_length=1)
-
-
-class RuleResponse(BaseModel):
-    id: int
-    name: str
-    boost: int
-    conditions: List[ConditionResponse]
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class RulesListResponse(BaseModel):
-    rules: List[RuleResponse]
-
+from typing import List, Optional
+from pydantic import BaseModel, ConfigDict, field_serializer, computed_field
 
 class TagResponse(BaseModel):
     id: int
@@ -76,6 +25,7 @@ class TaskCreateInput(BaseModel):
     @computed_field()
     @property
     def duration_minutes(self) -> Optional[int]:
+        """Converts user provided timedelta to minutes, as the duration is stored in db."""
         if self.duration:
             return int(self.duration.total_seconds() / 60)
 
@@ -91,13 +41,14 @@ class TaskUpdateInput(BaseModel):
     @computed_field()
     @property
     def duration_minutes(self) -> Optional[int]:
+        """Converts user provided timedelta to minutes, as the duration is stored in db."""
         if self.duration:
             return int(self.duration.total_seconds() / 60)
 
 
 class TaskResponse(BaseModel):
     id: int
-    score: int
+    priority_score: int
     title: str
     completed: bool
     duration: Optional[int] = None
@@ -110,6 +61,10 @@ class TaskResponse(BaseModel):
 
     @field_serializer('duration')
     def serialize_duration_minutes_to_timedelta(self, duration: Optional[int]) -> Optional[timedelta]:
+        """
+        Convert duration in minutes as it is stored in db,
+        to timedelta as the user expects.
+        """
         if duration is None:
             return None
         return timedelta(minutes=duration)

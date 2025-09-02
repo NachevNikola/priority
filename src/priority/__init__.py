@@ -1,7 +1,7 @@
 from flask import Flask
 from .extensions import migrate, db
 from .api import api
-from .auth import auth
+from src.priority.api.auth import auth
 from .errors import errors
 from .extensions import migrate, db
 from flask_jwt_extended import JWTManager
@@ -21,4 +21,5 @@ def create_app():
 
     return app
 
-from src.priority.models import *
+from src.priority.api.rules import routes, models
+from src.priority.api.tasks import routes, models

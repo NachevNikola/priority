@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 
 def parse_timedelta(time_str: str) -> Optional[timedelta]:

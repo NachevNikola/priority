@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 from typing import Dict, Tuple, Callable, Any, List
 
-from src.priority.models import Task, Rule, Condition
+from src.priority.api.tasks.models import Task
+from src.priority.api.rules.models import Rule, Condition
 from src.priority.utils import parse_timedelta
 
 

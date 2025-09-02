@@ -2,9 +2,9 @@ from flask import request
 import sqlalchemy as sa
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from src.priority.extensions import db
-from src.priority.models import User
+from .models import User
 from src.priority.errors import bad_request
-from . import api
+from src.priority.api import api
 
 @api.route('/me', methods=['GET'])
 @jwt_required()
