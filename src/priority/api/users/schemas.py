@@ -9,9 +9,9 @@ class UserCreateInput(BaseModel):
     password: str
 
 class UserUpdateInput(BaseModel):
-    username: Optional[str]
-    email: Optional[str]
-    password: Optional[str]
+    username: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
 
 class UserResponse(BaseModel):
     id: int

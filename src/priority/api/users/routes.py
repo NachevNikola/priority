@@ -1,24 +1,22 @@
 from flask import request, Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from pydantic import ValidationError
+from spectree import Response
 
-from src.priority.errors import bad_request
 from src.priority.api import user_service
 from .schemas import UserCreateInput, UserResponse, UserUpdateInput
+from src.priority.extensions import api
 
 
 users = Blueprint("users", __name__, url_prefix="/api/users")
 
 @users.route('/', methods=['POST'])
+@api.validate(
+    json=UserCreateInput,
+    resp=Response(HTTP_201=UserResponse, HTTP_409=None, HTTP_401=None),
+    tags=['users', 'auth']
+)
 def register():
-    data = request.get_json()
-
-    try:
-        user_data = UserCreateInput.model_validate(data)
-    except ValidationError as e:
-        return bad_request(e.errors())
-
-    user = user_service.register(user_data)
+    user = user_service.register(request.context.json)
 
     response_model = UserResponse.model_validate(user)
 
@@ -26,6 +24,11 @@ def register():
 
 @users.route('/me', methods=['GET'])
 @jwt_required()
+@api.validate(
+    resp=Response(HTTP_200=UserResponse, HTTP_401=None),
+    security=[{'jwt': []}],
+    tags=['users']
+)
 def get_user():
     user_id = int(get_jwt_identity())
 
@@ -36,17 +39,18 @@ def get_user():
 
 @users.route('/me', methods=['PUT'])
 @jwt_required()
+@api.validate(
+    json=UserUpdateInput,
+    resp=Response(HTTP_200=UserResponse, HTTP_401=None),
+    security=[{'jwt': []}],
+    tags=['users']
+)
 def update_user():
     user_id = int(get_jwt_identity())
-    json_data = request.get_json()
+    validated_data = request.context.json
 
-    try:
-        user_data = UserUpdateInput.model_validate(json_data)
-    except ValidationError as e:
-        return bad_request(e.errors())
-
-    user = user_service.update(user_id, user_data)
+    user = user_service.update(user_id, validated_data)
 
     response_model = UserResponse.model_validate(user)
 
-    return jsonify(response_model.model_dump()), 200
+    return jsonify(response_model.duration), 200

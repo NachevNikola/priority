@@ -5,7 +5,7 @@ from src.priority.api.users.routes import users
 from src.priority.api.rules.routes import rules
 from src.priority.api.tasks.routes import tasks
 from .errors import errors
-from .extensions import migrate, db
+from .extensions import migrate, db, api
 from flask_jwt_extended import JWTManager
 
 def create_app():
@@ -22,6 +22,8 @@ def create_app():
     app.register_blueprint(rules)
     app.register_blueprint(tasks)
     app.register_blueprint(errors)
+
+    api.register(app)
 
     return app
 

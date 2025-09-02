@@ -45,9 +45,9 @@ class UserService:
 
         for key, value in update_data.items():
             if key == 'username':
-                self._check_available_username(user.username, value)
+                self._check_available_username(value, user.username)
             if key == 'email':
-                self._check_available_email(user.email, value)
+                self._check_available_email(value, user.email)
             if key == 'password':
                 user.set_password(value)
             else:
