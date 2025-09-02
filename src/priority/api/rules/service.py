@@ -62,9 +62,6 @@ class RuleService:
         """Updates an existing rule. Conditions will be replaced if specified."""
         rule = self.get(user_id, rule_id)
 
-        if rule is None:
-            return bad_request('this rule does not exist')
-
         update_data = rule_data.model_dump(exclude_unset=True)
 
         for key, value in update_data.items():

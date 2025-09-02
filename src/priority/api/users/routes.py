@@ -1,9 +1,10 @@
-from flask import request, Blueprint
-import sqlalchemy as sa
+from flask import request, Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from src.priority.extensions import db
-from .models import User
+from pydantic import ValidationError
+
 from src.priority.errors import bad_request
+from src.priority.api import user_service
+from .schemas import UserCreateInput, UserResponse, UserUpdateInput
 
 
 users = Blueprint("users", __name__, url_prefix="/api/users")
@@ -11,40 +12,41 @@ users = Blueprint("users", __name__, url_prefix="/api/users")
 @users.route('/', methods=['POST'])
 def register():
     data = request.get_json()
-    if 'username' not in data or 'email' not in data or 'password' not in data:
-        return bad_request('must include username, email and password fields')
-    if db.session.scalar(sa.select(User).where(
-            User.username == data['username'])):
-        return bad_request('please use a different username')
-    if db.session.scalar(sa.select(User).where(
-            User.email == data['email'])):
-        return bad_request('please use a different email address')
-    user = User()
-    user.from_dict(data, new_user=True)
-    db.session.add(user)
-    db.session.commit()
-    return user.to_dict(), 201
+
+    try:
+        user_data = UserCreateInput.model_validate(data)
+    except ValidationError as e:
+        return bad_request(e.errors())
+
+    user = user_service.register(user_data)
+
+    response_model = UserResponse.model_validate(user)
+
+    return jsonify(response_model.model_dump()), 201
 
 @users.route('/me', methods=['GET'])
 @jwt_required()
 def get_user():
-    user_id = get_jwt_identity()
-    return db.get_or_404(User, user_id).to_dict()
+    user_id = int(get_jwt_identity())
+
+    user = user_service.get(user_id)
+    response_model = UserResponse.model_validate(user)
+
+    return jsonify(response_model.model_dump()), 200
 
 @users.route('/me', methods=['PUT'])
 @jwt_required()
 def update_user():
-    user_id = get_jwt_identity()
-    user = db.get_or_404(User, user_id)
-    data = request.get_json()
-    if 'username' in data and data['username'] != user.username and \
-            db.session.scalar(sa.select(User).where(
-                User.username == data['username'])):
-        return bad_request('please use a different username')
-    if 'email' in data and data['email'] != user.email and \
-            db.session.scalar(sa.select(User).where(
-                User.email == data['email'])):
-        return bad_request('please use a different email address')
-    user.from_dict(data, new_user=False)
-    db.session.commit()
-    return user.to_dict()
+    user_id = int(get_jwt_identity())
+    json_data = request.get_json()
+
+    try:
+        user_data = UserUpdateInput.model_validate(json_data)
+    except ValidationError as e:
+        return bad_request(e.errors())
+
+    user = user_service.update(user_id, user_data)
+
+    response_model = UserResponse.model_validate(user)
+
+    return jsonify(response_model.model_dump()), 200
