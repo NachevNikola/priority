@@ -1,16 +1,17 @@
-from flask import request, jsonify
+from flask import request, jsonify, Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .schemas import TaskCreateInput, TaskUpdateInput, TaskResponse, TasksListResponse
 
 from src.priority.errors import bad_request
 
-
 from pydantic import ValidationError
 
-from src.priority.api import api, task_service
+from src.priority.api import task_service
 
 
-@api.route('/tasks/', methods=['GET'])
+tasks = Blueprint("tasks", __name__, url_prefix="/api/tasks")
+
+@tasks.route('/', methods=['GET'])
 @jwt_required()
 def get_tasks():
     user_id = int(get_jwt_identity())
@@ -21,7 +22,7 @@ def get_tasks():
 
     return jsonify(response_model.model_dump(mode='json')), 200
 
-@api.route('/tasks/', methods=['POST'])
+@tasks.route('/', methods=['POST'])
 @jwt_required()
 def create_task():
     user_id = int(get_jwt_identity())
@@ -38,7 +39,7 @@ def create_task():
 
     return jsonify(response_model.model_dump(mode='json')), 201
 
-@api.route('/tasks/<int:task_id>', methods=['GET'])
+@tasks.route('/<int:task_id>', methods=['GET'])
 @jwt_required()
 def get_task(task_id):
     user_id = int(get_jwt_identity())
@@ -48,7 +49,7 @@ def get_task(task_id):
 
     return jsonify(response_model.model_dump(mode='json')), 200
 
-@api.route('/tasks/<int:task_id>', methods=['PUT', 'PATCH'])
+@tasks.route('/<int:task_id>', methods=['PUT', 'PATCH'])
 @jwt_required()
 def update_task(task_id):
     user_id = int(get_jwt_identity())
@@ -65,7 +66,7 @@ def update_task(task_id):
 
     return jsonify(response_model.model_dump(mode='json')), 201
 
-@api.route('/tasks/<int:task_id>/complete', methods=['PUT', 'PATCH', 'POST'])
+@tasks.route('/<int:task_id>/complete', methods=['PUT', 'PATCH', 'POST'])
 @jwt_required()
 def complete_task(task_id):
     user_id = int(get_jwt_identity())
@@ -76,7 +77,7 @@ def complete_task(task_id):
 
     return jsonify(response_model.model_dump(mode='json')), 200
 
-@api.route('/tasks/<int:task_id>', methods=['DELETE'])
+@tasks.route('/<int:task_id>', methods=['DELETE'])
 @jwt_required()
 def delete_task(task_id):
     user_id = int(get_jwt_identity())

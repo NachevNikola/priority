@@ -1,28 +1,13 @@
 from datetime import datetime, timezone
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, Blueprint
 from src.priority.extensions import db
 from src.priority.errors import bad_request
 from src.priority.api.users.models import User
 import sqlalchemy as sa
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
-from . import auth
 
-@auth.route('/register', methods=['POST'])
-def register():
-    data = request.get_json()
-    if 'username' not in data or 'email' not in data or 'password' not in data:
-        return bad_request('must include username, email and password fields')
-    if db.session.scalar(sa.select(User).where(
-            User.username == data['username'])):
-        return bad_request('please use a different username')
-    if db.session.scalar(sa.select(User).where(
-            User.email == data['email'])):
-        return bad_request('please use a different email address')
-    user = User()
-    user.from_dict(data, new_user=True)
-    db.session.add(user)
-    db.session.commit()
-    return user.to_dict(), 201
+
+auth = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 
 @auth.route('/login', methods=['POST'])

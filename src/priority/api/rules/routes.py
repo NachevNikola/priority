@@ -1,14 +1,15 @@
-from flask import request, jsonify
+from flask import request, jsonify, Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from pydantic import ValidationError
 
 from .schemas import RuleCreateInput, RuleUpdateInput, RuleResponse, RulesListResponse
 from src.priority.errors import bad_request
-from src.priority.api import api, rule_service
+from src.priority.api import rule_service
 
 
+rules = Blueprint("rules", __name__, url_prefix="/api/rules")
 
-@api.route('/rules/', methods=['GET'])
+@rules.route('/', methods=['GET'])
 @jwt_required()
 def get_rules():
     user_id = int(get_jwt_identity())
@@ -19,7 +20,7 @@ def get_rules():
 
     return jsonify(response_model.model_dump()), 200
 
-@api.route('/rules/', methods=['POST'])
+@rules.route('/', methods=['POST'])
 @jwt_required()
 def create_rule():
     user_id = int(get_jwt_identity())
@@ -35,7 +36,7 @@ def create_rule():
     response_model = RuleResponse.model_validate(rule)
     return jsonify(response_model.model_dump()), 201
 
-@api.route('/rules/<int:rule_id>', methods=['GET'])
+@rules.route('/<int:rule_id>', methods=['GET'])
 @jwt_required()
 def get_rule(rule_id):
     user_id = int(get_jwt_identity())
@@ -46,7 +47,7 @@ def get_rule(rule_id):
 
     return jsonify(response_model.model_dump()), 200
 
-@api.route('/rules/<int:rule_id>', methods=['PUT', 'PATCH'])
+@rules.route('/<int:rule_id>', methods=['PUT', 'PATCH'])
 @jwt_required()
 def update_rule(rule_id):
     user_id = int(get_jwt_identity())
@@ -62,7 +63,7 @@ def update_rule(rule_id):
     response_model = RuleResponse.model_validate(rule)
     return jsonify(response_model.model_dump()), 201
 
-@api.route('/rules/<int:rule_id>', methods=['DELETE'])
+@rules.route('/<int:rule_id>', methods=['DELETE'])
 @jwt_required()
 def delete_rule(rule_id):
     user_id = int(get_jwt_identity())
