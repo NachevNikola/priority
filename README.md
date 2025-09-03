@@ -30,7 +30,7 @@ This makes it a fully customizable task prioritization system.
 
 `docker compose up --build`  
 
-3. Run database migrations:
+3. Run database migrations in a new terminal:
     
 `docker compose exec web flask db upgrade`
 
