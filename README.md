@@ -24,7 +24,7 @@ This makes it a fully customizable task prioritization system.
 
 1. Create environment file
 
-`cp .example.env .env`
+`cp .env.example .env`
 
 2. Build and run the Docker containers:
 
