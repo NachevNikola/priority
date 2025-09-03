@@ -15,6 +15,12 @@ auth = Blueprint("auth", __name__, url_prefix="/api/auth")
     tags=['auth']
 )
 def login():
+    """User Login.
+
+    Authenticates a user with the email and password provided.
+    If successful, it returns access and refresh JSON Web Tokens with their expiration date times.
+    The access token is required for accessing resources on other endpoints.
+    """
     validated_data = request.context.json
 
     tokens_data = auth_service.login(validated_data)
@@ -31,6 +37,10 @@ def login():
     tags=['auth']
 )
 def refresh_access_token():
+    """Refresh access and refresh tokens.
+
+    Generates new access and refresh tokens if a valid refresh token is used in the Authorization header.
+    """
     user_id = int(get_jwt_identity())
 
     tokens_data = auth_service.refresh_token(user_id)

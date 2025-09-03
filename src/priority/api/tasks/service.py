@@ -55,10 +55,11 @@ class TaskService:
             task.category = self._get_or_create_user_category(user_id, task_data.category)
 
         task.tags = self._get_or_create_user_tags(user_id, task_data.tags)
-        task.priority_score = self.priority_calculator.calculate_task_score(task)
 
         db.session.add(task)
         db.session.commit()
+
+        task.priority_score = self.priority_calculator.calculate_task_score(task)
 
         return task
 
@@ -108,9 +109,10 @@ class TaskService:
             else:
                 setattr(task, key, value)
 
-        task.priority_score = self.priority_calculator.calculate_task_score(task)
         db.session.add(task)
         db.session.commit()
+
+        task.priority_score = self.priority_calculator.calculate_task_score(task)
 
         return task
 
@@ -118,10 +120,11 @@ class TaskService:
         """Marks a task as completed for user."""
         task = self.get(user_id, task_id)
         task.completed = True
-        task.priority_score = self.priority_calculator.calculate_task_score(task)
 
         db.session.add(task)
         db.session.commit()
+
+        task.priority_score = self.priority_calculator.calculate_task_score(task)
 
         return task
 

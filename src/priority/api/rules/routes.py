@@ -16,6 +16,11 @@ rules = Blueprint("rules", __name__, url_prefix="/api/rules")
     tags=['rules']
 )
 def get_rules():
+    """List all prioritization rules.
+
+    Retrieves a list of all prioritization rules and their associated
+    conditions for the currently authenticated user.
+    """
     user_id = int(get_jwt_identity())
 
     rules = rule_service.get_all(user_id)
@@ -33,6 +38,12 @@ def get_rules():
     tags=['rules']
 )
 def create_rule():
+    """Create a new prioritization rule.
+
+    Creates a new rule with a name, a priority boost value, and a list of
+    one or more conditions. The new rule is automatically associated with
+    the authenticated user.
+    """
     user_id = int(get_jwt_identity())
     validated_data = request.context.json
 
@@ -49,6 +60,13 @@ def create_rule():
     tags=['rules']
 )
 def get_rule(rule_id):
+    """Retrieve a single rule by its ID.
+
+
+    Fetches the details of a specific prioritization rule, including its
+    list of conditions. Will return a 404 error if the rule does not
+    exist or does, or a 403 if ti does not belong to the user.
+    """
     user_id = int(get_jwt_identity())
 
     rule = rule_service.get(user_id, rule_id)
@@ -57,7 +75,7 @@ def get_rule(rule_id):
 
     return jsonify(response_model.model_dump()), 200
 
-@rules.route('/<int:rule_id>', methods=['PUT', 'PATCH'])
+@rules.route('/<int:rule_id>', methods=['PATCH'])
 @jwt_required()
 @api.validate(
     json=RuleUpdateInput,
@@ -66,6 +84,12 @@ def get_rule(rule_id):
     tags=['rules']
 )
 def update_rule(rule_id):
+    """Update an existing rule.
+
+    Updates one or more attributes of a specific rule. Fields that are not
+    included in the request body will remain unchanged. If the conditions
+    list is given, it will fully replace the existing conditions for the rule.
+    """
     user_id = int(get_jwt_identity())
     validated_data = request.context.json
 
@@ -82,6 +106,10 @@ def update_rule(rule_id):
     tags=['rules']
 )
 def delete_rule(rule_id):
+    """Delete a prioritization rule.
+
+    Permanently deletes a specific rule and all of its associated conditions.
+    """
     user_id = int(get_jwt_identity())
 
     rule_service.delete(user_id, rule_id)

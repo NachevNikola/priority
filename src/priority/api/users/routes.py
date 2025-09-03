@@ -16,6 +16,12 @@ users = Blueprint("users", __name__, url_prefix="/api/users")
     tags=['users', 'auth']
 )
 def register():
+    """Register a new user.
+
+    Creates a new user account with a unique username and email.
+    The provided password will be stored hashed.
+    A 409 Conflict error is returned if the username or email is already in use.
+    """
     user = user_service.register(request.context.json)
 
     response_model = UserResponse.model_validate(user)
@@ -30,6 +36,10 @@ def register():
     tags=['users']
 )
 def get_user():
+    """Get current user profile.
+
+    Retrieves the profile information for the currently authenticated user.
+    """
     user_id = int(get_jwt_identity())
 
     user = user_service.get(user_id)
@@ -46,6 +56,12 @@ def get_user():
     tags=['users']
 )
 def update_user():
+    """Update current user profile.
+
+    Updates the profile for the currently authenticated user.
+    Only the fields provided in the request body will be changed.
+    A 409 Conflict error is returned if the new username or email is already in use by another account.
+    """
     user_id = int(get_jwt_identity())
     validated_data = request.context.json
 

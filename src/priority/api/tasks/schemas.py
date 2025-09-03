@@ -29,6 +29,18 @@ class TaskCreateInput(BaseModel):
     category: Optional[str] = None
     tags: Optional[List[str]] = []
 
+    class Config:
+        json_schema_extra = {
+            'example': {
+                'title': 'Finish project',
+                'completed': False,
+                'duration': 'PT6H30M',
+                'deadline': '2025-09-09 15:30',
+                'category': 'work',
+                'tags': ['urgent', 'important']
+            }
+        }
+
 
 class TaskUpdateInput(BaseModel):
     title: str = None

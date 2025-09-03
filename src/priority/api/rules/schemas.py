@@ -33,6 +33,36 @@ class RuleCreateInput(BaseModel):
     boost: int
     conditions: List[ConditionCreateInput] = Field(..., min_length=1)
 
+    class Config:
+        json_schema_extra = {
+            'example': {
+                'name': 'Urgent work rule',
+                'boost': 30,
+                'conditions': [
+                    {
+                        'field' : 'category',
+                        'operator' : 'equals',
+                        'value' : 'work',
+                    },
+                    {
+                        'field': 'tag',
+                        'operator': 'equals',
+                        'value': 'urgent',
+                    },
+                    {
+                        'field': 'deadline',
+                        'operator': 'less_than',
+                        'value': 'P7DT12H'
+                    },
+                    {
+                        'field': 'duration',
+                        'operator': 'greater_than',
+                        'value': 'PT30M'
+                    }
+                ]
+            }
+        }
+
 
 class RuleUpdateInput(BaseModel):
     name: Optional[str] = None
