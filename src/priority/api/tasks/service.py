@@ -34,7 +34,7 @@ class TaskService:
         task = Task(
             title=task_data.title,
             completed=task_data.completed,
-            duration=task_data.duration_minutes,
+            duration=task_data.duration,
             deadline=task_data.deadline,
             user_id=user_id,
         )
@@ -86,9 +86,7 @@ class TaskService:
         update_data = task_data.model_dump(exclude_unset=True)
 
         for key, value in update_data.items():
-            if key == 'duration':
-                task.duration = update_data["duration_minutes"]
-            elif key == 'category':
+            if key == 'category':
                 task.category = None
                 if value:
                     task.category = self._get_or_create_user_category(user_id, value)

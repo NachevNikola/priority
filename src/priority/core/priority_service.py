@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Dict, Tuple, Callable, Any, List
 
 from src.priority.api.tasks.models import Task
@@ -43,15 +43,15 @@ class ConditionEvaluator:
         """Checks if a tag exists in a list of tag names"""
         return value.lower() in tag_names
 
-    def _duration_less_than(self, duration_minutes: int, value: str) -> bool:
+    def _duration_less_than(self, duration: timedelta, value: str) -> bool:
         """Checks if the duration in minutes is less than  or equals to the given timedelta"""
         value_timedelta = parse_timedelta(value)
-        return duration_minutes * 60 <= value_timedelta.total_seconds()
+        return duration <= value_timedelta
 
-    def _duration_greater_than(self, duration_minutes: int, value: str) -> bool:
+    def _duration_greater_than(self, duration: timedelta, value: str) -> bool:
         """Checks if the duration in minutes is greater than the given timedelta"""
         value_timedelta = parse_timedelta(value)
-        return value_timedelta and duration_minutes * 60 > value_timedelta.total_seconds()
+        return duration > value_timedelta
 
     def _deadline_less_than(self, deadline: datetime, value: str) -> bool:
         """Checks if the deadline is within the timedelta from now."""

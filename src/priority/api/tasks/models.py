@@ -1,7 +1,8 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional, List
 import sqlalchemy as sa
 import sqlalchemy.orm as so
+
 from src.priority.extensions import db
 from src.priority.api.users.models import User
 
@@ -20,7 +21,7 @@ class Task(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     title: so.Mapped[str] = so.mapped_column(sa.String(140))
     completed: so.Mapped[bool] = so.mapped_column(default=False)
-    duration: so.Mapped[Optional[int]] = so.mapped_column()
+    duration: so.Mapped[Optional[timedelta]] = so.mapped_column()
     deadline: so.Mapped[Optional[datetime]] = so.mapped_column(sa.DateTime(timezone=True), index=True)
     created_at: so.Mapped[datetime] = so.mapped_column(
         sa.DateTime(timezone=True), index=True, default=lambda: datetime.now(timezone.utc)

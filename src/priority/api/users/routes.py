@@ -53,4 +53,4 @@ def update_user():
 
     response_model = UserResponse.model_validate(user)
 
-    return jsonify(response_model.duration), 200
+    return jsonify(response_model.model_dump()), 200
