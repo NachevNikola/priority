@@ -21,6 +21,8 @@ class ConditionEvaluator:
             ('duration', 'greater_than'): self._duration_greater_than,
             ('deadline', 'less_than'): self._deadline_less_than,
             ('deadline', 'greater_than'): self._deadline_greater_than,
+            ('created_at', 'less_than'): self._created_at_less_than,
+            ('created_at', 'greater_than'): self._created_at_greater_than,
         }
 
     def evaluate(self, field_name: str, field_value: Any, operator: str, condition_value: str) -> bool:
@@ -63,6 +65,16 @@ class ConditionEvaluator:
         value_timedelta = parse_timedelta(value)
         return deadline > (datetime.now(timezone.utc) + value_timedelta)
 
+    def _created_at_greater_than(self, created_at: datetime, value: str) -> bool:
+        """Checks if created_at is more timedelta from now in the past"""
+        value_timedelta = parse_timedelta(value)
+        return created_at <= (datetime.now(timezone.utc) - value_timedelta)
+
+    def _created_at_less_than(self, created_at: datetime, value: str) -> bool:
+        """Checks if created_at is within timedelta from now in the past"""
+        value_timedelta = parse_timedelta(value)
+        return created_at > (datetime.now(timezone.utc) - value_timedelta)
+
 
 class PriorityCalculator:
     """Calculates the task's priority score based on user's rules."""
@@ -101,6 +113,7 @@ class PriorityCalculator:
             'tag': [tag.name for tag in task.tags],
             'duration': task.duration,
             'deadline': task.deadline,
+            'created_at': task.created_at,
         }
 
         field_value = field_value_map.get(condition.field, None)

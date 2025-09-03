@@ -2,9 +2,9 @@ from typing import List, Literal, Optional
 from pydantic import BaseModel, Field, ConfigDict, model_validator
 from src.priority.utils import parse_timedelta
 
-ALLOWED_FIELDS = Literal["category", "tag", "duration", "deadline"]
+ALLOWED_FIELDS = Literal["category", "tag", "duration", "deadline", "created_at"]
 ALLOWED_OPERATORS = Literal["equals", "greater_than", "less_than"]
-FIELDS_REQUIRING_TIMEDELTA_VALUE = ("duration", "deadline")
+FIELDS_REQUIRING_TIMEDELTA_VALUE = ("duration", "deadline", "created_at")
 
 
 class ConditionCreateInput(BaseModel):
@@ -36,7 +36,7 @@ class RuleCreateInput(BaseModel):
     class Config:
         json_schema_extra = {
             'example': {
-                'name': 'Urgent work rule',
+                'name': 'Rule for urgent work tasks with close deadline that were recently created',
                 'boost': 30,
                 'conditions': [
                     {
@@ -58,6 +58,11 @@ class RuleCreateInput(BaseModel):
                         'field': 'duration',
                         'operator': 'greater_than',
                         'value': 'PT30M'
+                    },
+                    {
+                        'field': 'created_at',
+                        'operator': 'less_than',
+                        'value': 'P14D'
                     }
                 ]
             }
