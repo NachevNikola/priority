@@ -3,8 +3,7 @@ from typing import List
 from flask import abort
 import sqlalchemy as sa
 
-from .schemas import TaskCreateInput, TaskUpdateInput
-from src.priority.api.users.models import User
+from .schemas import TaskCreateInput, TaskUpdateInput, TasksFilterParams
 from src.priority.extensions import db
 from src.priority.core import PriorityCalculator
 from .models import Task, Category, Tag
@@ -20,14 +19,27 @@ class TaskService:
     def __init__(self, priority_calculator: PriorityCalculator):
         self.priority_calculator = priority_calculator
 
-    def get_all(self, user_id: int) -> List[Task]:
+    def get_filtered(self, user_id: int, filters: TasksFilterParams) -> List[Task]:
         """Gets all user tasks with their priority scores."""
-        user = db.get_or_404(User, user_id, description="User not found")
+        query = sa.select(Task).where(Task.user_id == user_id)
 
-        for task in user.tasks:
+        if filters.completed is not None:
+            query = query.where(Task.completed == filters.completed)
+
+        if filters.order_by == 'deadline':
+            query = query.order_by(Task.deadline.asc())
+        elif filters.order_by == 'created_at':
+            query = query.order_by(Task.created_at.desc())
+
+        tasks = db.session.scalars(query).all()
+
+        for task in tasks:
             task.priority_score = self.priority_calculator.calculate_task_score(task)
 
-        return user.tasks
+        if filters.order_by == 'priority_score':
+            tasks = sorted(tasks, key=lambda task: task.priority_score, reverse=True)
+
+        return tasks
 
     def create(self, user_id: int, task_data: TaskCreateInput) -> Task:
         """Creates a new task for the user."""

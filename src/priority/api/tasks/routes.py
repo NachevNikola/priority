@@ -2,8 +2,7 @@ from flask import request, jsonify, Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from spectree import Response
 
-from .schemas import TaskCreateInput, TaskUpdateInput, TaskResponse, TasksListResponse
-
+from .schemas import TaskCreateInput, TaskUpdateInput, TaskResponse, TasksListResponse, TasksFilterParams
 
 from src.priority.api import task_service
 from src.priority.extensions import api
@@ -13,6 +12,7 @@ tasks = Blueprint("tasks", __name__, url_prefix="/api/tasks")
 @tasks.route('/', methods=['GET'])
 @jwt_required()
 @api.validate(
+    query=TasksFilterParams,
     resp=Response(HTTP_200=TasksListResponse, HTTP_401=None),
     security=[{'jwt': []}],
     tags=['tasks']
@@ -20,7 +20,9 @@ tasks = Blueprint("tasks", __name__, url_prefix="/api/tasks")
 def get_tasks():
     user_id = int(get_jwt_identity())
 
-    tasks = task_service.get_all(user_id)
+    validated_query = request.context.query
+
+    tasks = task_service.get_filtered(user_id,validated_query)
 
     response_model = TasksListResponse.model_validate({'tasks': tasks})
 
