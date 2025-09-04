@@ -24,13 +24,13 @@ This makes it a fully customizable task prioritization system.
 
 1. Create environment file
 
-`cp .example.env .env`
+`cp .env.example .env`
 
 2. Build and run the Docker containers:
 
 `docker compose up --build`  
 
-3. Run database migrations:
+3. Run database migrations in a new terminal:
     
 `docker compose exec web flask db upgrade`
 
