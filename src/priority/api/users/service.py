@@ -58,22 +58,24 @@ class UserService:
 
         return user
 
-    def _check_available_username(self, new_username: str, current_username: Optional[str] = None):
+    def _check_available_username(self, new_username: str, current_username: Optional[str] = None) -> bool:
         """Check if the specified new username doesn't exist in db or is equal to the current username"""
         if current_username == new_username:
-            return
+            return True
 
         duplicate_user =  db.session.scalar(sa.select(User).where(User.username == new_username))
 
         if duplicate_user is not None:
             abort(409, description='Username already exists')
+        return True
 
-    def _check_available_email(self, new_email: str, current_email: Optional[str] = None):
+    def _check_available_email(self, new_email: str, current_email: Optional[str] = None) -> bool:
         """Check if the specified new email doesn't exist in db or is equal to the current email"""
         if current_email == new_email:
-            return
+            return True
 
         duplicate_user = db.session.scalar(sa.select(User).where(User.email == new_email))
 
         if duplicate_user is not None:
             abort(409, description='Email already exists')
+        return True
