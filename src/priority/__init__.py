@@ -5,13 +5,15 @@ from src.priority.api.users.routes import users
 from src.priority.api.rules.routes import rules
 from src.priority.api.tasks.routes import tasks
 from .errors import errors
-from .extensions import migrate, db, api
+from .extensions import api
 from flask_jwt_extended import JWTManager
 
-def create_app():
+def create_app(override_settings=None):
     app = Flask(__name__)
 
     app.config.from_object("src.config.settings")
+    if override_settings:
+        app.config.update(override_settings)
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -26,8 +28,3 @@ def create_app():
     api.register(app)
 
     return app
-
-from src.priority.api.auth import routes
-from src.priority.api.users import routes, models
-from src.priority.api.rules import routes, models
-from src.priority.api.tasks import routes, models
