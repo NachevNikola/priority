@@ -24,15 +24,21 @@ This makes it a fully customizable task prioritization system.
 
 1. Create environment file
 
-`cp .env.example .env`
+    ```
+    cp .env.example .env
+    ```
 
 2. Build and run the Docker containers:
 
-`docker compose up --build`  
+    ```
+    docker compose up --build
+    ``` 
 
 3. Run database migrations in a new terminal:
     
-`docker compose exec web flask db upgrade`
+    ```
+    docker compose exec web flask db upgrade
+    ```
 
 The application is now running on `http://localhost:8000`
 
@@ -41,3 +47,11 @@ The interactive and documented API with examples can be accessed at:
 ```http://localhost:8000/apidoc/swagger```
 
 There is an authorize button where the access token can be put to access all endpoints.
+
+
+### Running tests
+While the application is running, run the tests with:
+    
+```
+docker compose exec web pytest
+```
