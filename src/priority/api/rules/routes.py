@@ -43,6 +43,10 @@ def create_rule():
     Creates a new rule with a name, a priority boost value, and a list of
     one or more conditions. The new rule is automatically associated with
     the authenticated user.
+
+    Supported conditions:
+    Field: ['category', 'tag'] - Operator: 'equals' - Value: string ;
+    Field: ['duration', 'deadline', 'created_at'] - Operator: ['less_than', 'greater_than'] - Value: timedelta
     """
     user_id = int(get_jwt_identity())
     validated_data = request.context.json
