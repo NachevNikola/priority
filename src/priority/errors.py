@@ -1,6 +1,6 @@
 from werkzeug.http import HTTP_STATUS_CODES
 from werkzeug.exceptions import HTTPException
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, current_app
 
 errors = Blueprint("errors", __name__)
 
@@ -18,4 +18,5 @@ def bad_request(message):
 
 @errors.app_errorhandler(HTTPException)
 def handle_exception(e):
+    current_app.logger.info(e)
     return error_response(e.code, description=e.description)
