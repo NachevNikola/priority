@@ -3,7 +3,7 @@ from sqlalchemy_utils import database_exists, create_database, drop_database
 from src.config import settings
 from src.priority import create_app
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def app():
     db_uri = settings.SQLALCHEMY_DATABASE_URI + "_test"
     test_settings = {

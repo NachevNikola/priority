@@ -29,7 +29,7 @@ def get_tasks():
 
     validated_query = request.context.query
 
-    tasks = task_service.get_filtered(user_id,validated_query)
+    tasks = task_service.get_filtered(user_id, validated_query)
 
     response_model = TasksListResponse.model_validate({'tasks': tasks})
 
@@ -74,7 +74,7 @@ def get_task(task_id):
     """
     user_id = int(get_jwt_identity())
 
-    task = task_service.get_with_score(user_id, task_id)
+    task = task_service.get_with_priority_score(user_id, task_id)
     response_model = TaskResponse.model_validate(task)
 
     return jsonify(response_model.model_dump(mode='json')), 200

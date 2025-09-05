@@ -17,7 +17,7 @@ class CategoryResponse(BaseModel):
 
 
 class TasksFilterParams(BaseModel):
-    completed: Optional[bool] = False
+    completed: Optional[bool] = None
     order_by: Optional[TASK_ORDER_BY] = 'priority_score'
 
 
